@@ -1,0 +1,18 @@
+[package]
+name = "paladium"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+glib = "0.21.3"
+gstreamer = "0.24.2"
+gstreamer-rtsp-server = "0.24.2"
+anyhow = "1.0.100"
+
+[[bin]]
+name = "pipeline1"
+path = "src/pipeline1.rs"
+
+[[bin]]
+name = "pipeline2"
+path = "src/pipeline2.rs"
