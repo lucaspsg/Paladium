@@ -1,7 +1,17 @@
-rtsp: false
-webRTCAddress: :8889
+# ========================
+# MediaMTX Configuration
+# ========================
+
+# Protocols
+rtsp: no
+rtmp: no
+hls: yes
+webrtc: yes
+srt: yes
+
 hlsAddress: :8888
-srtAddress: :9999         # MediaMTX listens on this port
+webrtcAddress: :8889
+srtAddress: :8890
 
 paths:
   cam1:

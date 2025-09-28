@@ -1,4 +1,3 @@
-
 use anyhow::Result;
 use gstreamer as gst;
 use gstreamer_rtsp_server as gst_rtsp_server;
@@ -22,11 +21,9 @@ fn main() -> Result<()> {
     let mounts = server.mount_points().unwrap();
     let factory = gst_rtsp_server::RTSPMediaFactory::new();
 
-    // Demux video + audio and pay them for RTSP
+    // Video only, no audio
     let pipeline_str = format!(
-        "filesrc location=\"{}\" ! qtdemux name=demux \
-         demux.video_0 ! queue ! h264parse ! rtph264pay name=pay0 pt=96 \
-         demux.audio_0 ! queue ! aacparse ! rtpmp4apay name=pay1 pt=97",
+        "filesrc location=\"{}\" ! qtdemux ! h264parse ! rtph264pay name=pay0 pt=96",
         video_file
     );
 
@@ -37,7 +34,6 @@ fn main() -> Result<()> {
 
     server.attach(None)?;
     println!("RTSP server running at rtsp://localhost:8554/cam1");
-    println!("Press Ctrl+C to stop");
 
     let main_loop = glib::MainLoop::new(None, false);
     main_loop.run();
