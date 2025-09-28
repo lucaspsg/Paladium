@@ -21,9 +21,8 @@ fn main() -> Result<()> {
     let mounts = server.mount_points().unwrap();
     let factory = gst_rtsp_server::RTSPMediaFactory::new();
 
-    // Video only, no audio
     let pipeline_str = format!(
-        "filesrc location=\"{}\" ! qtdemux ! h264parse ! rtph264pay name=pay0 pt=96",
+        "filesrc location=\"{}\" ! qtdemux ! h264parse ! avdec_h264 ! x264enc ! video/x-h264,profile=baseline ! rtph264pay name=pay0 pt=96",
         video_file
     );
 
