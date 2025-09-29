@@ -57,6 +57,37 @@ services:
     networks:
       - paladium-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: paladium-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    networks:
+      - paladium-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: paladium-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./monitoring/dashboard-config.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+      - ./monitoring/mediamtx-dashboard.json:/var/lib/grafana/dashboards/mediamtx-dashboard.json
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+    networks:
+      - paladium-network
+
   web-ui:
     image: nginx:alpine
     container_name: paladium-web-server
@@ -75,3 +106,5 @@ networks:
 volumes:
   videos:
     driver: local
+  prometheus-data:
+  grafana-data:
