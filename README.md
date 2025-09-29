@@ -50,7 +50,7 @@ paladium/
 1. **Clone and setup:**
    ```bash
    git clone git@github.com:lucaspsg/Paladium.git
-   cd paladium
+   cd Paladium
    ```
 
 2. **Add a sample video:**
