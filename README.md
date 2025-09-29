@@ -43,7 +43,7 @@ paladium/
 - **Rust 1.75+** (for local development)
 - **GStreamer** (for local development)
 - **VLC Media Player** (for testing)
-- **Sample MP4 file** (H.264)
+- **Sample MP4 file** (H.264 and preferrably a few minutes long)
 
 ## Quick Start
 
