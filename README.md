@@ -10,31 +10,39 @@ This pipeline consists of three main components:
 2. **Pipeline 2** - RTSP → SRT: Consumes RTSP and publishes to SRT server
 3. **Pipeline 3** - SRT/WebRTC/HLS Server: MediaMTX server exposing multiple protocols
 
-## 🏗️ Architecture
+## Project Structure
 
 ```
-[MP4 File] → [Pipeline 1: RTSP Server] → [Pipeline 2: RTSP→SRT] → [MediaMTX Server]
-                                                                    ↓
-                                                              [WebRTC/HLS/SRT]
-                                                                    ↓
-                                                              [VLC/Browser Clients]
+paladium/
+├── pipeline-rtsp/           # Pipeline 1: File → RTSP
+│   ├── src/main.rs
+│   ├── Cargo.toml
+│   └── Dockerfile
+├── pipeline-rtsp-to-srt/    # Pipeline 2: RTSP → SRT
+│   ├── src/main.rs
+│   ├── Cargo.toml
+│   └── Dockerfile
+├── ui/                      # User Interface: Interacts with Pipeline3 (MediaMTX server)
+│   ├── index.html
+├── videos/                  # Sample video files
+├── docker-compose.yml       # MediaMTX server and container coordenation
+├── Makefile
+└── README.md
 ```
 
 ## 📋 Prerequisites
 
-- **Docker & Docker Compose** (recommended)
+- **Docker & Docker Compose**
 - **Rust 1.75+** (for development)
 - **GStreamer** (for local development)
 - **VLC Media Player** (for testing)
-- **Sample MP4 file** (H.264 preferred)
+- **Sample MP4 file** (H.264)
 
 ## 🚀 Quick Start
 
-### Option 1: Docker Compose (Recommended)
-
 1. **Clone and setup:**
    ```bash
-   git clone <repository>
+   git clone git@github.com:lucaspsg/Paladium.git
    cd paladium
    ```
 
@@ -47,40 +55,12 @@ This pipeline consists of three main components:
 3. **Run the complete pipeline:**
    ```bash
    make demo
-   # or
-   docker-compose up -d
    ```
 
 4. **Test the pipeline:**
    - **Web UI**: http://localhost:8080
    - **VLC RTSP**: `rtsp://localhost:8554/cam1`
    - **VLC SRT**: `srt://localhost:8890?streamid=read:cam1`
-
-### Option 2: Development Mode
-
-1. **Build the Rust binaries:**
-   ```bash
-   make dev-build
-   ```
-
-2. **Start MediaMTX server:**
-   ```bash
-   docker run -d --name mediamtx \
-     -p 8888:8888 -p 8889:8889 -p 8890:8890 \
-     -p 9997:9997 -p 9998:9998 \
-     -v $(pwd)/server/mediamtx.yml:/mediamtx.yml \
-     bluenviron/mediamtx:latest /mediamtx.yml
-   ```
-
-3. **Run Pipeline 1 (RTSP):**
-   ```bash
-   make dev-run-pipeline1
-   ```
-
-4. **Run Pipeline 2 (RTSP→SRT):**
-   ```bash
-   make dev-run-pipeline2
-   ```
 
 ## 🔧 Configuration
 
@@ -95,15 +75,12 @@ This pipeline consists of three main components:
   --file /path/to/video.mp4 \
   --port 8554 \
   --mount /cam1 \
-  --loop-video
 ```
 
 **Features:**
 - Supports MP4, AVI, MOV, and other GStreamer-compatible formats
 - H.264 encoding with baseline profile
 - Configurable port and mount point
-- Video looping option
-- Graceful shutdown handling
 
 ### Pipeline 2 (RTSP→SRT)
 
@@ -116,18 +93,14 @@ This pipeline consists of three main components:
   --rtsp-url rtsp://localhost:8554/cam1 \
   --srt-url srt://localhost:8890?streamid=publish:cam1 \
   --reconnect-delay 5 \
-  --max-retries 0
 ```
 
 **Features:**
 - Automatic reconnection with configurable backoff
 - Error handling and logging
-- Configurable retry limits
 - Real-time stream monitoring
 
 ### MediaMTX Server
-
-**Configuration file:** `server/mediamtx.yml`
 
 **Exposed protocols:**
 - **HLS**: http://localhost:8888/cam1/index.m3u8
@@ -159,11 +132,6 @@ This pipeline consists of three main components:
 1. **Web UI**: http://localhost:8080
    - Tests both WebRTC and HLS connections
    - Real-time connection status
-   - Copy-to-clipboard URLs
-
-2. **Direct HLS**: http://localhost:8888/cam1/index.m3u8
-   - Open in browser or VLC
-   - Low-latency HLS configuration
 
 ### Resilience Testing
 
@@ -187,24 +155,9 @@ This pipeline consists of three main components:
 ### Container Status
 
 ```bash
-# View all containers
-make status
-
 # View logs
 make logs
-
-# View specific service logs
-make logs-rtsp
-make logs-srt
-make logs-mediamtx
 ```
-
-### Health Checks
-
-All containers include health checks:
-- **Pipeline 1**: Port 8554 availability
-- **Pipeline 2**: Port 8890 availability  
-- **MediaMTX**: API endpoint responsiveness
 
 ### Metrics
 
@@ -255,117 +208,3 @@ All containers include health checks:
 - Maximum compatibility
 - Scalable distribution
 - Mobile applications
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-paladium/
-├── pipeline-rtsp/           # Pipeline 1: File → RTSP
-│   ├── src/main.rs
-│   ├── Cargo.toml
-│   └── Dockerfile
-├── pipeline-rtsp-to-srt/    # Pipeline 2: RTSP → SRT
-│   ├── src/main.rs
-│   ├── Cargo.toml
-│   └── Dockerfile
-├── server/                  # Pipeline 3: MediaMTX Server
-│   ├── mediamtx.yml
-│   ├── index.html
-│   └── Dockerfile
-├── videos/                  # Sample video files
-├── docker-compose.yml
-├── Makefile
-└── README.md
-```
-
-### Building from Source
-
-```bash
-# Build all Rust binaries
-cargo build --release
-
-# Build specific pipeline
-cargo build --release --bin pipeline-rtsp
-cargo build --release --bin pipeline-rtsp-to-srt
-```
-
-### Adding New Features
-
-1. **New video formats**: Modify GStreamer pipeline strings
-2. **Additional protocols**: Extend MediaMTX configuration
-3. **Monitoring**: Add Prometheus metrics
-4. **Authentication**: Implement RTSP/SRT authentication
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **"No such file or directory" for video file**
-   ```bash
-   # Ensure video file exists
-   ls -la ./videos/sample.mp4
-   ```
-
-2. **Port conflicts**
-   ```bash
-   # Check port usage
-   netstat -tulpn | grep :8554
-   ```
-
-3. **GStreamer plugin errors**
-   ```bash
-   # Install missing plugins
-   sudo apt-get install gstreamer1.0-plugins-*
-   ```
-
-4. **Container startup failures**
-   ```bash
-   # Check container logs
-   docker-compose logs pipeline-rtsp
-   ```
-
-### Performance Tuning
-
-1. **Reduce latency:**
-   - Decrease HLS segment duration
-   - Use WebRTC for real-time
-   - Optimize GStreamer pipeline
-
-2. **Improve reliability:**
-   - Increase SRT buffer size
-   - Implement retry logic
-   - Add health monitoring
-
-3. **Scale horizontally:**
-   - Use load balancers
-   - Implement CDN
-   - Add multiple MediaMTX instances
-
-## 📚 References
-
-- [GStreamer Documentation](https://gstreamer.freedesktop.org/documentation/)
-- [MediaMTX Documentation](https://github.com/bluenviron/mediamtx)
-- [SRT Protocol](https://github.com/Haivision/srt)
-- [WebRTC Standards](https://webrtc.org/)
-- [HLS Specification](https://tools.ietf.org/html/rfc8216)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## 📞 Support
-
-For issues and questions:
-- Create an issue on GitHub
-- Check the troubleshooting section
-- Review container logs for errors

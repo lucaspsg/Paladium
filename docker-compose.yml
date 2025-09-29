@@ -1,7 +1,4 @@
-# Docker Compose file for Paladium Video Pipeline
-
 services:
-  # Pipeline 1: File to RTSP
   pipeline-rtsp:
     build:
       context: ./pipeline-rtsp
@@ -25,7 +22,6 @@ services:
     networks:
       - paladium-network
 
-  # Pipeline 2: RTSP to SRT
   pipeline-rtsp-to-srt:
     build:
       context: ./pipeline-rtsp-to-srt
@@ -46,9 +42,10 @@ services:
     networks:
       - paladium-network
 
-  # MediaMTX Server
   mediamtx:
-    image: bluenviron/mediamtx:latest
+    build:
+      context: ./server
+      dockerfile: Dockerfile
     container_name: paladium-mediamtx
     ports:
       - "8888:8888"
@@ -56,33 +53,13 @@ services:
       - "8890:8890/udp"
       - "9997:9997"
       - "9998:9998"
-    environment:
-      - MTX_AUTHMETHOD=internal
-      - MTX_API=yes
-      - MTX_APIADDRESS=:9997
-      - MTX_METRICS=yes
-      - MTX_METRICSADDRESS=:9998
-      - MTX_AUTHINTERNALUSERS_0_USER=any
-      - MTX_AUTHINTERNALUSERS_0_PASS=
-      - MTX_AUTHINTERNALUSERS_0_PERMISSIONS_0_ACTION=publish
-      - MTX_AUTHINTERNALUSERS_0_PERMISSIONS_1_ACTION=read
-      - MTX_AUTHINTERNALUSERS_0_PERMISSIONS_2_ACTION=playback
-      - MTX_AUTHINTERNALUSERS_1_USER=admin
-      - MTX_AUTHINTERNALUSERS_1_PASS=admin
-      - MTX_AUTHINTERNALUSERS_1_PERMISSIONS_0_ACTION=api
-      - MTX_AUTHINTERNALUSERS_1_PERMISSIONS_1_ACTION=metrics
-      - MTX_AUTHINTERNALUSERS_1_PERMISSIONS_2_ACTION=pprof
-      - MTX_AUTHINTERNALUSERS_1_PERMISSIONS_3_ACTION=publish
-      - MTX_AUTHINTERNALUSERS_1_PERMISSIONS_4_ACTION=read
-      - MTX_AUTHINTERNALUSERS_1_PERMISSIONS_5_ACTION=playback
     restart: unless-stopped
     networks:
       - paladium-network
 
-  # Web UI (optional - can be served by MediaMTX)
   web-ui:
     image: nginx:alpine
-    container_name: paladium-web-ui
+    container_name: paladium-web-server
     ports:
       - "8080:80"
     volumes:

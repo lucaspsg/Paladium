@@ -9,73 +9,62 @@ use tracing::{info, error};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Path to the video file to serve
+
     #[arg(short, long)]
     file: String,
-    
-    /// RTSP server port
+
     #[arg(short, long, default_value = "8554")]
     port: u16,
-    
-    /// RTSP mount point
+
     #[arg(short, long, default_value = "/cam1")]
     mount: String,
 }
 
 fn main() -> Result<()> {
-    // Initialize tracing
     tracing_subscriber::fmt::init();
-    
+
     let args = Args::parse();
-    
-    // Validate file exists
+
     if !Path::new(&args.file).exists() {
         error!("Video file not found: {}", args.file);
         std::process::exit(1);
     }
-    
+
     info!("Starting RTSP server for file: {}", args.file);
-    
-    // Initialize GStreamer
+
     gst::init()?;
-    
-    // Create RTSP server
+
     let server = gst_rtsp_server::RTSPServer::new();
     server.set_service(&args.port.to_string());
-    
-    // Get mount points
+
     let mounts = server.mount_points().unwrap();
     let factory = gst_rtsp_server::RTSPMediaFactory::new();
-    
+
     let pipeline_str = format!(
         "filesrc location=\"{}\" ! qtdemux ! h264parse ! avdec_h264 ! x264enc ! video/x-h264,profile=baseline ! rtph264pay name=pay0 pt=96",
         args.file
     );
-    
+
     factory.set_launch(&pipeline_str);
     factory.set_shared(true);
-    
-    // Add the factory to mount points
+
     mounts.add_factory(&args.mount, factory);
-    
-    // Attach the server
+
     server.attach(None)?;
-    
+
     info!("RTSP server running at rtsp://localhost:{}{}", args.port, args.mount);
     info!("Press Ctrl+C to stop");
-    
-    // Run the main loop
+
     let main_loop = glib::MainLoop::new(None, false);
-    
-    // Handle Ctrl+C gracefully
+
     let main_loop_clone = main_loop.clone();
     ctrlc::set_handler(move || {
         info!("Received interrupt signal, shutting down...");
         main_loop_clone.quit();
     })?;
-    
+
     main_loop.run();
-    
+
     info!("RTSP server stopped");
     Ok(())
 }
