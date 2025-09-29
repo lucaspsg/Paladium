@@ -1,0 +1,86 @@
+# Docker Compose file for Paladium Video Pipeline
+
+services:
+  # Pipeline 1: File to RTSP
+  pipeline-rtsp:
+    build:
+      context: ./pipeline-rtsp
+      dockerfile: Dockerfile
+    container_name: paladium-pipeline-rtsp
+    ports:
+      - "8554:8554"
+    volumes:
+      - ./videos:/app/videos:ro
+    environment:
+      - RUST_LOG=info
+      - GST_DEBUG=1
+      - GST_REGISTRY_FORK=no
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "netstat", "-ln", "|", "grep", ":8554"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - paladium-network
+
+  # Pipeline 2: RTSP to SRT
+  pipeline-rtsp-to-srt:
+    build:
+      context: ./pipeline-rtsp-to-srt
+      dockerfile: Dockerfile
+    container_name: paladium-pipeline-rtsp-to-srt
+    depends_on:
+      - pipeline-rtsp
+      - mediamtx
+    environment:
+      - RUST_LOG=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "netstat", "-ln", "|", "grep", ":8890"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - paladium-network
+
+  # MediaMTX Server
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: paladium-mediamtx
+    ports:
+      - "8888:8888"
+      - "8889:8889"
+      - "8890:8890/udp"
+      - "9997:9997"
+      - "9998:9998"
+    environment:
+      - MTX_API=yes
+      - MTX_APIADDRESS=:9997
+      - MTX_METRICS=yes
+      - MTX_METRICSADDRESS=:9998
+    restart: unless-stopped
+    networks:
+      - paladium-network
+
+  # Web UI (optional - can be served by MediaMTX)
+  web-ui:
+    image: nginx:alpine
+    container_name: paladium-web-ui
+    ports:
+      - "8080:80"
+    volumes:
+      - ./server/index.html:/usr/share/nginx/html/index.html:ro
+    restart: unless-stopped
+    networks:
+      - paladium-network
+
+networks:
+  paladium-network:
+    driver: bridge
+
+volumes:
+  videos:
+    driver: local
