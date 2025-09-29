@@ -48,7 +48,7 @@ demo: build run
 	@echo "   - RTSP: rtsp://localhost:8554/cam1"
 	@echo "   - SRT:  srt://localhost:8890?streamid=read:cam1"
 	@echo ""
-	@echo "2. Open your browser and go to:"
+	@echo "2. Open your browser (chrome-based) and go to:"
 	@echo "   - Web UI: http://localhost:8080"
 	@echo ""
 	@echo "3. Check pipeline status:"

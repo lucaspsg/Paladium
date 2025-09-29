@@ -22,15 +22,17 @@ paladium/
 │   ├── src/main.rs
 │   ├── Cargo.toml
 │   └── Dockerfile
-├── ui/                      # User Interface: Interacts with Pipeline3 (MediaMTX server)
+├── server/                  # Pipeline 3: SRT -> MediaMTX
+│   ├── Dockerfile
 │   ├── index.html
+│   └── mediamtx.yml
 ├── videos/                  # Sample video files
-├── docker-compose.yml       # MediaMTX server and container coordenation
+├── docker-compose.yml
 ├── Makefile
 └── README.md
 ```
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Docker & Docker Compose**
 - **Rust 1.75+** (for development)
@@ -38,7 +40,7 @@ paladium/
 - **VLC Media Player** (for testing)
 - **Sample MP4 file** (H.264)
 
-## 🚀 Quick Start
+## Quick Start
 
 1. **Clone and setup:**
    ```bash
@@ -62,7 +64,7 @@ paladium/
    - **VLC RTSP**: `rtsp://localhost:8554/cam1`
    - **VLC SRT**: `srt://localhost:8890?streamid=read:cam1`
 
-## 🔧 Configuration
+## Configuration
 
 ### Pipeline 1 (RTSP Server)
 
@@ -77,11 +79,6 @@ paladium/
   --mount /cam1 \
 ```
 
-**Features:**
-- Supports MP4, AVI, MOV, and other GStreamer-compatible formats
-- H.264 encoding with baseline profile
-- Configurable port and mount point
-
 ### Pipeline 2 (RTSP→SRT)
 
 ```bash
@@ -95,11 +92,6 @@ paladium/
   --reconnect-delay 5 \
 ```
 
-**Features:**
-- Automatic reconnection with configurable backoff
-- Error handling and logging
-- Real-time stream monitoring
-
 ### MediaMTX Server
 
 **Exposed protocols:**
@@ -111,7 +103,7 @@ paladium/
 - **API**: http://localhost:9997/v3/config/global/get
 - **Metrics**: http://localhost:9998/metrics
 
-## 🧪 Testing
+## Testing
 
 ### VLC Testing
 
@@ -129,7 +121,7 @@ paladium/
 
 ### Browser Testing
 
-1. **Web UI**: http://localhost:8080
+1. **Web UI (chrome-based browser)**: http://localhost:8080
    - Tests both WebRTC and HLS connections
    - Real-time connection status
 
@@ -150,9 +142,9 @@ paladium/
    docker-compose start pipeline-rtsp
    ```
 
-## 📊 Monitoring
+## Monitoring
 
-### Container Status
+### Container Logs
 
 ```bash
 # View logs
@@ -164,7 +156,7 @@ make logs
 - **MediaMTX Metrics**: http://localhost:9998/metrics
 - **Container Stats**: `docker stats`
 
-## 🔍 Protocol Comparison
+## Protocol Comparison
 
 ### RTSP vs SRT
 
