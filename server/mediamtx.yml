@@ -10,9 +10,18 @@ srtAddress: :8890
 
 api: yes
 apiAddress: :9997
-
 metrics: yes
 metricsAddress: :9998
+
+authInternalUsers:
+  - user: admin
+    pass: admin
+    permissions:
+      - action: api
+      - action: metrics
+      - action: playback
+      - action: read
+      - action: publish
 
 paths:
   cam1:
