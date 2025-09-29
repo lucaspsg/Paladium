@@ -43,7 +43,7 @@ paladium/
 - **Rust 1.75+** (for local development)
 - **GStreamer** (for local development)
 - **VLC Media Player** (for testing)
-- **Sample MP4 file** (H.264 and preferrably a few minutes long)
+- **Sample MP4 file** (H.264)
 
 ## Quick Start
 
@@ -55,7 +55,8 @@ paladium/
 
 2. **Add a sample video:**
    ```bash
-   # Place your MP4 file in the videos directory
+   # Place your MP4 file in the videos directory (there already is a "default" sample in videos/ .
+   # If you would like to test another sample, please assure that it is a few minutes long)
    cp /path/to/your/video.mp4 ./videos/sample.mp4
    ```
 
