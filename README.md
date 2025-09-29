@@ -32,7 +32,7 @@ paladium/
 │   ├── dashboard-config.yml
 │   └── mediamtx-dashboard.json
 ├── videos/                  # Sample video files
-├── docker-compose.yml
+├── docker compose.yml
 ├── Makefile
 └── README.md
 ```
@@ -134,7 +134,7 @@ All panels refresh every 5 seconds.
 
 1. **Stop Pipeline 1:**
    ```bash
-   docker-compose stop pipeline-rtsp
+   docker compose stop pipeline-rtsp
    ```
 
 2. **Observe Pipeline 2 behavior:**
@@ -144,7 +144,7 @@ All panels refresh every 5 seconds.
 
 3. **Restart Pipeline 1:**
    ```bash
-   docker-compose start pipeline-rtsp
+   docker compose start pipeline-rtsp
    ```
 
 4. **Monitor the recovery in Grafana:**
@@ -158,9 +158,9 @@ All panels refresh every 5 seconds.
 make logs
 
 # View specific service logs
-docker-compose logs -f pipeline-rtsp
-docker-compose logs -f mediamtx
-docker-compose logs -f grafana
+docker compose logs -f pipeline-rtsp
+docker compose logs -f mediamtx
+docker compose logs -f grafana
 ```
 
 ### Metrics Endpoints
