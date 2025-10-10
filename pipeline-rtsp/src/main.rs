@@ -1,5 +1,6 @@
 /*
     comentario teste
+    comentario teste2
 */
 use anyhow::Result;
 use clap::Parser;
