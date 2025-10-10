@@ -34,6 +34,10 @@ fn main() -> Result<()> {
 
     gst::init()?;
 
+    /*
+        comentario teste 
+    */
+
     let server = gst_rtsp_server::RTSPServer::new();
     server.set_service(&args.port.to_string());
 
