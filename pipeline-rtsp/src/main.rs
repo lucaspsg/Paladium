@@ -1,3 +1,6 @@
+/*
+    comment teste1
+*/
 use anyhow::Result;
 use clap::Parser;
 use gstreamer as gst;
